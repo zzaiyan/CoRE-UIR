@@ -1,0 +1,228 @@
+# ------------------------------------------------------------------------
+# CoRE-UIR Phase-II restoration training / testing on MDVD-108K.
+#
+# Replace /path/to/MDVD-108K with your dataset root before running.
+# ------------------------------------------------------------------------
+name: CoRE-UIR_MDVD
+model_type: IRPriorModel
+scale: 1
+num_gpu: 1
+manual_seed: 10
+
+datasets:
+  train:
+    name: MDVD-Train
+    type: AllInOnePairDataset
+    degrade_type:
+      [
+        "fog",
+        "dust",
+        "rain",
+        "lowlight",
+        "motion",
+        "defocus",
+        "fog-lowlight",
+        "fog-motion",
+        "dust-lowlight",
+        "dust-motion",
+        "rain-lowlight",
+        "rain-motion",
+      ]
+    dataroot_gt:
+      [
+        "/path/to/MDVD-108K/train/fog/gt",
+        "/path/to/MDVD-108K/train/dust/gt",
+        "/path/to/MDVD-108K/train/rain/gt",
+        "/path/to/MDVD-108K/train/lowlight/gt",
+        "/path/to/MDVD-108K/train/motion/gt",
+        "/path/to/MDVD-108K/train/defocus/gt",
+        "/path/to/MDVD-108K/train/fog-lowlight/gt",
+        "/path/to/MDVD-108K/train/fog-motion/gt",
+        "/path/to/MDVD-108K/train/dust-lowlight/gt",
+        "/path/to/MDVD-108K/train/dust-motion/gt",
+        "/path/to/MDVD-108K/train/rain-lowlight/gt",
+        "/path/to/MDVD-108K/train/rain-motion/gt",
+      ]
+    dataroot_lq:
+      [
+        "/path/to/MDVD-108K/train/fog/input",
+        "/path/to/MDVD-108K/train/dust/input",
+        "/path/to/MDVD-108K/train/rain/input",
+        "/path/to/MDVD-108K/train/lowlight/input",
+        "/path/to/MDVD-108K/train/motion/input",
+        "/path/to/MDVD-108K/train/defocus/input",
+        "/path/to/MDVD-108K/train/fog-lowlight/input",
+        "/path/to/MDVD-108K/train/fog-motion/input",
+        "/path/to/MDVD-108K/train/dust-lowlight/input",
+        "/path/to/MDVD-108K/train/dust-motion/input",
+        "/path/to/MDVD-108K/train/rain-lowlight/input",
+        "/path/to/MDVD-108K/train/rain-motion/input",
+      ]
+    io_backend:
+      type: disk
+    select_ratio: 1.0
+    view_mode: dual
+    view_size: 224
+    clip_transform_mode: train
+    gt_size: 256
+    use_flip: true
+    use_rot: true
+    use_shuffle: true
+    num_worker_per_gpu: 8
+    batch_size_per_gpu: 8
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+
+  val:
+    name: MDVD-Test
+    type: AllInOnePairDataset
+    degrade_type:
+      [
+        "fog",
+        "dust",
+        "rain",
+        "lowlight",
+        "motion",
+        "defocus",
+        "fog-lowlight",
+        "fog-motion",
+        "dust-lowlight",
+        "dust-motion",
+        "rain-lowlight",
+        "rain-motion",
+      ]
+    dataroot_gt:
+      [
+        "/path/to/MDVD-108K/test/fog/gt",
+        "/path/to/MDVD-108K/test/dust/gt",
+        "/path/to/MDVD-108K/test/rain/gt",
+        "/path/to/MDVD-108K/test/lowlight/gt",
+        "/path/to/MDVD-108K/test/motion/gt",
+        "/path/to/MDVD-108K/test/defocus/gt",
+        "/path/to/MDVD-108K/test/fog-lowlight/gt",
+        "/path/to/MDVD-108K/test/fog-motion/gt",
+        "/path/to/MDVD-108K/test/dust-lowlight/gt",
+        "/path/to/MDVD-108K/test/dust-motion/gt",
+        "/path/to/MDVD-108K/test/rain-lowlight/gt",
+        "/path/to/MDVD-108K/test/rain-motion/gt",
+      ]
+    dataroot_lq:
+      [
+        "/path/to/MDVD-108K/test/fog/input",
+        "/path/to/MDVD-108K/test/dust/input",
+        "/path/to/MDVD-108K/test/rain/input",
+        "/path/to/MDVD-108K/test/lowlight/input",
+        "/path/to/MDVD-108K/test/motion/input",
+        "/path/to/MDVD-108K/test/defocus/input",
+        "/path/to/MDVD-108K/test/fog-lowlight/input",
+        "/path/to/MDVD-108K/test/fog-motion/input",
+        "/path/to/MDVD-108K/test/dust-lowlight/input",
+        "/path/to/MDVD-108K/test/dust-motion/input",
+        "/path/to/MDVD-108K/test/rain-lowlight/input",
+        "/path/to/MDVD-108K/test/rain-motion/input",
+      ]
+    io_backend:
+      type: disk
+    select_ratio: 1.0
+    view_mode: dual
+    view_size: 224
+    clip_transform_mode: inference
+    save_img: false
+    gt_size: 512
+    num_worker_per_gpu: 8
+    batch_size_per_gpu: 8
+
+network_g:
+  type: CoREUIR
+  width: 32
+  enc_blk_nums: [1, 1, 1, 28]
+  middle_blk_num: 1
+  dec_blk_nums: [1, 1, 1, 1]
+  train_size: [1, 3, 256, 256]
+  r: 4
+  num_experts: 6
+  top_k: 3
+  lora_scaling: auto
+  lora_prenorm: false
+  final_skip: true
+  prior_dim: 384
+  prior_adapter_type: MLP
+  prior_hidden_dim: 384
+  router_head_type: prototype
+  router_temperature: 10.0
+  gfm_type: state
+  gfm_reduction: 16
+  gfm_fusion: add
+  route_level: stage
+  use_gfm: true
+  use_mole: true
+  gfm_positions: [encoder, mid, decoder]
+  mole_positions: [encoder, mid, decoder]
+
+network_prior:
+  type: DegradationPriorEmbedding
+  cls_num: 6
+  dim: 384
+  vision_tower: openai/clip-vit-base-patch32
+  view_mode: dual
+  view_size: 224
+  ckpt: pretrained/dpe_clip_b32_multilabel_mdvd.ckpt
+
+path:
+  pretrain_network_g: ~
+  strict_load_g: true
+  resume_state: ~
+
+train:
+  optim_g:
+    type: AdamW
+    lr: !!float 1e-3
+    weight_decay: !!float 1e-3
+    betas: [0.9, 0.9]
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 700000
+    eta_min: !!float 1e-6
+  total_iter: 700000
+  warmup_iter: -1
+  losses:
+    - name: l_pix
+      type: L1Loss
+      loss_weight: 0.6
+    - name: l_ssim
+      type: SSIMLoss
+      loss_weight: 0.2
+    - name: l_percep
+      type: LPIPSLoss
+      net_type: alex
+      loss_weight: 0.2
+
+val:
+  val_freq: !!float 4e3
+  save_img: false
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+    lpips:
+      type: calculate_lpips
+      net_type: alex
+      crop_border: 0
+      test_y_channel: false
+
+logger:
+  print_freq: 4000
+  save_checkpoint_freq: !!float 2e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+dist_params:
+  backend: nccl
+  port: 29500

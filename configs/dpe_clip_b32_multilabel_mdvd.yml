@@ -1,0 +1,118 @@
+# ------------------------------------------------------------------------
+# CoRE-UIR Phase-I DPE training on MDVD-108K.
+#
+# Replace /path/to/MDVD-108K with your dataset root before running.
+# ------------------------------------------------------------------------
+config_name: router_mdvd_clip-b-32_multilabel
+dataset_name: MDVD
+router_type: dpe
+view_mode: dual
+view_size: 224
+clip_vision_tower: openai/clip-vit-base-patch32
+multi_label_classification: true
+multi_label_threshold: 0.5
+epochs: 30
+batch_size: 16
+patch_size: 224
+crop_size: 512
+lr: !!float 2e-4
+eta_min: !!float 1e-5
+weight_decay: !!float 1e-3
+adam_beta1: 0.9
+adam_beta2: 0.9
+num_workers: 8
+cache_memory: 0
+save_every: 5
+ckpt_dir: prior/checkpoints
+
+datasets:
+  train:
+    name: MDVD-train
+    type: AllInOnePairDataset
+    degrade_type:
+      - fog
+      - dust
+      - rain
+      - lowlight
+      - motion
+      - defocus
+      - fog-lowlight
+      - fog-motion
+      - dust-lowlight
+      - dust-motion
+      - rain-lowlight
+      - rain-motion
+    dataroot_gt:
+      - /path/to/MDVD-108K/train/fog/gt
+      - /path/to/MDVD-108K/train/dust/gt
+      - /path/to/MDVD-108K/train/rain/gt
+      - /path/to/MDVD-108K/train/lowlight/gt
+      - /path/to/MDVD-108K/train/motion/gt
+      - /path/to/MDVD-108K/train/defocus/gt
+      - /path/to/MDVD-108K/train/fog-lowlight/gt
+      - /path/to/MDVD-108K/train/fog-motion/gt
+      - /path/to/MDVD-108K/train/dust-lowlight/gt
+      - /path/to/MDVD-108K/train/dust-motion/gt
+      - /path/to/MDVD-108K/train/rain-lowlight/gt
+      - /path/to/MDVD-108K/train/rain-motion/gt
+    dataroot_lq:
+      - /path/to/MDVD-108K/train/fog/input
+      - /path/to/MDVD-108K/train/dust/input
+      - /path/to/MDVD-108K/train/rain/input
+      - /path/to/MDVD-108K/train/lowlight/input
+      - /path/to/MDVD-108K/train/motion/input
+      - /path/to/MDVD-108K/train/defocus/input
+      - /path/to/MDVD-108K/train/fog-lowlight/input
+      - /path/to/MDVD-108K/train/fog-motion/input
+      - /path/to/MDVD-108K/train/dust-lowlight/input
+      - /path/to/MDVD-108K/train/dust-motion/input
+      - /path/to/MDVD-108K/train/rain-lowlight/input
+      - /path/to/MDVD-108K/train/rain-motion/input
+    select_ratio: 1.0
+    repeat: 1
+    clip_transform_mode: train
+
+  val:
+    name: MDVD-test
+    type: AllInOnePairDataset
+    degrade_type:
+      - fog
+      - dust
+      - rain
+      - lowlight
+      - motion
+      - defocus
+      - fog-lowlight
+      - fog-motion
+      - dust-lowlight
+      - dust-motion
+      - rain-lowlight
+      - rain-motion
+    dataroot_gt:
+      - /path/to/MDVD-108K/test/fog/gt
+      - /path/to/MDVD-108K/test/dust/gt
+      - /path/to/MDVD-108K/test/rain/gt
+      - /path/to/MDVD-108K/test/lowlight/gt
+      - /path/to/MDVD-108K/test/motion/gt
+      - /path/to/MDVD-108K/test/defocus/gt
+      - /path/to/MDVD-108K/test/fog-lowlight/gt
+      - /path/to/MDVD-108K/test/fog-motion/gt
+      - /path/to/MDVD-108K/test/dust-lowlight/gt
+      - /path/to/MDVD-108K/test/dust-motion/gt
+      - /path/to/MDVD-108K/test/rain-lowlight/gt
+      - /path/to/MDVD-108K/test/rain-motion/gt
+    dataroot_lq:
+      - /path/to/MDVD-108K/test/fog/input
+      - /path/to/MDVD-108K/test/dust/input
+      - /path/to/MDVD-108K/test/rain/input
+      - /path/to/MDVD-108K/test/lowlight/input
+      - /path/to/MDVD-108K/test/motion/input
+      - /path/to/MDVD-108K/test/defocus/input
+      - /path/to/MDVD-108K/test/fog-lowlight/input
+      - /path/to/MDVD-108K/test/fog-motion/input
+      - /path/to/MDVD-108K/test/dust-lowlight/input
+      - /path/to/MDVD-108K/test/dust-motion/input
+      - /path/to/MDVD-108K/test/rain-lowlight/input
+      - /path/to/MDVD-108K/test/rain-motion/input
+    select_ratio: 1.0
+    clip_transform_mode: inference
