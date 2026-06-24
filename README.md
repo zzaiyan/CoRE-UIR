@@ -9,7 +9,9 @@ restoration backbone for single and compound remote-sensing degradations.
 ## Installation
 
 ```bash
-conda activate torch25
+conda create -n core-uir python=3.10 -y
+conda activate core-uir
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 pip install -r requirements.txt
 ```
 
@@ -50,13 +52,6 @@ Large weights are not tracked by git. Place them under `pretrained/`:
 ```text
 pretrained/dpe_clip_b32_multilabel_mdvd.ckpt
 pretrained/core_uir_mdvd.pth
-```
-
-If needed, convert an older restoration checkpoint:
-
-```bash
-python tools/convert_core_uir_checkpoint.py \
-  path/to/old_net_g.pth pretrained/core_uir_mdvd.pth
 ```
 
 ## Train DPE
