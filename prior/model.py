@@ -178,6 +178,42 @@ def normalize_prior_router_state_dict(state_dict):
     return state_dict
 
 
+def load_prior_router_state_dict(model, state_dict):
+    """Load either a complete DPE state dict or its trainable adapter weights."""
+    state_dict = normalize_prior_router_state_dict(state_dict)
+    if any(key.startswith('clip_model.') for key in state_dict):
+        model.load_state_dict(state_dict, strict=True)
+        return 'full'
+
+    expected = {
+        key for key in model.state_dict()
+        if not key.startswith('clip_model.')
+    }
+    provided = set(state_dict)
+    missing = sorted(expected - provided)
+    unexpected = sorted(provided - expected)
+    if missing or unexpected:
+        details = []
+        if missing:
+            details.append(f'missing keys: {missing}')
+        if unexpected:
+            details.append(f'unexpected keys: {unexpected}')
+        raise RuntimeError('Invalid adapter-only DPE checkpoint; ' + '; '.join(details))
+
+    incompatible = model.load_state_dict(state_dict, strict=False)
+    unexpected_loaded = list(incompatible.unexpected_keys)
+    missing_loaded = {
+        key for key in incompatible.missing_keys
+        if not key.startswith('clip_model.')
+    }
+    if unexpected_loaded or missing_loaded:
+        raise RuntimeError(
+            'Failed to load adapter-only DPE checkpoint; '
+            f'missing keys: {sorted(missing_loaded)}, '
+            f'unexpected keys: {unexpected_loaded}')
+    return 'adapter-only'
+
+
 def get_prior_router_class(router_type):
     router_key = str(router_type).lower()
     if router_key not in ROUTER_REGISTRY:
@@ -214,6 +250,7 @@ __all__ = [
     'ROUTER_REGISTRY',
     'build_prior_router',
     'get_prior_router_class',
+    'load_prior_router_state_dict',
     'normalize_prior_router_state_dict',
     'router_default_view_mode',
     'router_checkpoint_stem',

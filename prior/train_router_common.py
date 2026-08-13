@@ -20,6 +20,7 @@ PRIOR_DIR = ROOT_DIR / 'prior'
 DEFAULT_CKPT_DIR = PRIOR_DIR / 'checkpoints'
 
 from basicsr.data import create_dataset  # noqa: E402
+from basicsr.utils.download_util import resolve_checkpoint_path  # noqa: E402
 from prior.config_utils import (  # noqa: E402
     get_prior_phase_dataset_entries,
     infer_prior_degrade_types,
@@ -32,7 +33,7 @@ from prior.classification_utils import (  # noqa: E402
 )
 from prior.model import (  # noqa: E402
     build_prior_router,
-    normalize_prior_router_state_dict,
+    load_prior_router_state_dict,
     router_default_view_mode,
     router_checkpoint_stem,
 )
@@ -472,17 +473,15 @@ def _build_trainer(args, callbacks=None):
 
 
 def _load_model_weights(model, ckpt_path):
+    ckpt_path = resolve_checkpoint_path(ckpt_path)
     ckpt = torch.load(ckpt_path, map_location='cpu')
     if 'state_dict' in ckpt:
-        state_dict = normalize_prior_router_state_dict(ckpt['state_dict'])
-        model.load_state_dict(state_dict, strict=True)
-        return
-    if 'params' in ckpt:
-        state_dict = normalize_prior_router_state_dict(ckpt['params'])
-        model.load_state_dict(state_dict, strict=True)
-        return
-    state_dict = normalize_prior_router_state_dict(ckpt)
-    model.load_state_dict(state_dict, strict=True)
+        state_dict = ckpt['state_dict']
+    elif 'params' in ckpt:
+        state_dict = ckpt['params']
+    else:
+        state_dict = ckpt
+    return load_prior_router_state_dict(model.model, state_dict)
 
 
 def build_parser(defaults=None):
@@ -575,12 +574,13 @@ def _run_train(args, degrade_types):
 def _run_test(args, degrade_types):
     if not args.ckpt_path:
         raise ValueError('--ckpt_path is required when --mode test.')
-    if not osp.exists(args.ckpt_path):
+    ckpt_path = resolve_checkpoint_path(args.ckpt_path)
+    if not osp.exists(ckpt_path):
         raise FileNotFoundError(f'Checkpoint not found: {args.ckpt_path}')
 
     prepare_single_gpu_context(args.gpu)
     model = DPEModule(args=args, degrade_types=degrade_types)
-    _load_model_weights(model, args.ckpt_path)
+    _load_model_weights(model, ckpt_path)
     data_module = AllInOneClassificationDataModule(args, degrade_types)
 
     print(f'\nTesting checkpoint: {args.ckpt_path}')

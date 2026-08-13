@@ -5,10 +5,44 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import math
+import os
 import requests
 from tqdm import tqdm
 
 from .misc import sizeof_fmt
+
+
+def resolve_checkpoint_path(path):
+    """Resolve local paths and ``hf://`` checkpoint URIs to local files.
+
+    Hugging Face URIs use ``hf://owner/repo/filename`` and may pin a revision
+    with ``hf://owner/repo@revision/filename``.
+    """
+    if path is None:
+        return None
+    path = os.fspath(path)
+    if not path.startswith('hf://'):
+        return os.path.expanduser(path)
+
+    components = path[len('hf://'):].split('/', 2)
+    if len(components) != 3 or not all(components):
+        raise ValueError(
+            'Hugging Face checkpoint URI must use '
+            'hf://<owner>/<repo>[@<revision>]/<filename>.')
+
+    owner, repo_revision, filename = components
+    if '@' in repo_revision:
+        repo, revision = repo_revision.rsplit('@', 1)
+        if not repo or not revision:
+            raise ValueError(f'Invalid Hugging Face checkpoint URI: {path}')
+    else:
+        repo, revision = repo_revision, None
+
+    from huggingface_hub import hf_hub_download
+    return hf_hub_download(
+        repo_id=f'{owner}/{repo}',
+        filename=filename,
+        revision=revision)
 
 
 def download_file_from_google_drive(file_id, save_path):

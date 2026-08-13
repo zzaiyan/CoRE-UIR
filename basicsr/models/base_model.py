@@ -20,6 +20,7 @@ import importlib
 from basicsr.models import lr_scheduler as lr_scheduler
 from basicsr.utils.dist_util import master_only, get_dist_info
 from basicsr.utils import get_root_logger, imwrite, tensor2img
+from basicsr.utils.download_util import resolve_checkpoint_path
 
 metric_module = importlib.import_module('basicsr.metrics')
 
@@ -69,6 +70,7 @@ class BaseModel():
         the safe path and only fall back to ``weights_only=False`` for local
         project checkpoints when the new unpickler explicitly rejects them.
         """
+        load_path = resolve_checkpoint_path(load_path)
         try:
             return torch.load(load_path, map_location=map_location, weights_only=weights_only)
         except TypeError:

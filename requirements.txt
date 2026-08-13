@@ -18,5 +18,6 @@ timm
 tqdm
 yapf
 transformers==4.37.2
+huggingface_hub
 einops
 lpips

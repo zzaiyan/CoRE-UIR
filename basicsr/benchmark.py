@@ -50,7 +50,7 @@ def parse_benchmark_options():
                         help='Unused benchmark compatibility flag.')
     parser.add_argument('--gpu', default=None)
     parser.add_argument('--weights', type=str, default=None,
-                        help='Override path.pretrain_network_g with a checkpoint path.')
+                        help='Override weights with a local path or hf:// URI.')
     parser.add_argument('--phase', type=str, default=None,
                         help='Benchmark only one dataset phase, e.g. val or test.')
     parser.add_argument('--warmup', type=int, default=20,

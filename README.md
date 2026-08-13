@@ -13,11 +13,11 @@
 <sup>3</sup>State Key Laboratory of Information Engineering in Surveying, Mapping and Remote Sensing, Wuhan University<br>
 <sup>*</sup>Corresponding author
 
-[![Journal](https://img.shields.io/badge/ISPRS-JPRS-1f6f78.svg)](https://doi.org/10.1016/j.isprsjprs.2026.07.028)
-[![arXiv](https://img.shields.io/badge/arXiv-2607.27898-b31b1b.svg)](https://arxiv.org/abs/2607.27898)
-[![PDF](https://img.shields.io/badge/Paper-PDF-d64545.svg)](https://zzaiyan.github.io/assets/pubs/coreuir.pdf)
-[![Dataset](https://img.shields.io/badge/Hugging_Face-MDVD--108K-f0b429.svg)](https://huggingface.co/datasets/zzaiyan/MDVD-108K)
-[![License](https://img.shields.io/badge/License-Apache_2.0-4c566a.svg)](LICENSE)
+[![PDF](https://img.shields.io/badge/Paper-PDF-orange.svg)](https://zzaiyan.github.io/assets/pubs/coreuir.pdf)
+[![arXiv](https://img.shields.io/badge/arXiv-2607.27898-red.svg)](https://arxiv.org/abs/2607.27898)
+[![Models](https://img.shields.io/badge/Hugging_Face-CoRE--UIR-yellow.svg)](https://huggingface.co/zzaiyan/CoRE-UIR)
+[![Dataset](https://img.shields.io/badge/Dataset-MDVD--108K-green.svg)](https://huggingface.co/datasets/zzaiyan/MDVD-108K)
+[![License](https://img.shields.io/badge/License-Apache_2.0-lightgrey.svg)](LICENSE)
 
 [Overview](#-overview) | [Results](#-results) | [Model Zoo](#-model-zoo) | [Quick Start](#-quick-start) | [Datasets](#-datasets) | [Citation](#-citation)
 
@@ -47,12 +47,18 @@ CoRE-UIR achieves strong restoration quality across the UAV-based **MDVD-108K** 
 
 ## 🏆 Model Zoo
 
-CoRE-UIR uses a Phase-I DPE checkpoint and a Phase-II restoration checkpoint. Place released weights under `pretrained/` with the following names.
+CoRE-UIR uses a Phase-I DPE checkpoint and a Phase-II restoration checkpoint. The public configs and commands load them from the [CoRE-UIR model repository](https://huggingface.co/zzaiyan/CoRE-UIR), while the same filenames can be placed under `pretrained/` for local use.
 
 | Benchmark | DPE setting | Experts | Routing | DPE checkpoint | Restoration checkpoint | Config |
 | --- | --- | ---: | ---: | --- | --- | --- |
-| MDVD-108K | 6-label, multi-label | 6 | Top-3 | `dpe_clip_b32_multilabel_mdvd.ckpt` | `core_uir_mdvd.pth` | [`core_uir_mdvd.yml`](configs/core_uir_mdvd.yml) |
-| MDRS-Landsat | 4-class, single-label | 4 | Top-1 | `dpe_clip_b32_mdrs.ckpt` | `core_uir_mdrs.pth` | [`core_uir_mdrs.yml`](configs/core_uir_mdrs.yml) |
+| MDVD-108K | 6-label, multi-label | 6 | Top-3 | [`dpe_clip_b32_mdvd.ckpt`](https://huggingface.co/zzaiyan/CoRE-UIR/resolve/main/dpe_clip_b32_mdvd.ckpt) | [`core_uir_mdvd.pth`](https://huggingface.co/zzaiyan/CoRE-UIR/resolve/main/core_uir_mdvd.pth) | [`core_uir_mdvd.yml`](configs/core_uir_mdvd.yml) |
+| MDRS-Landsat | 4-class, single-label | 4 | Top-1 | [`dpe_clip_b32_mdrs.ckpt`](https://huggingface.co/zzaiyan/CoRE-UIR/resolve/main/dpe_clip_b32_mdrs.ckpt) | [`core_uir_mdrs.pth`](https://huggingface.co/zzaiyan/CoRE-UIR/resolve/main/core_uir_mdrs.pth) | [`core_uir_mdrs.yml`](configs/core_uir_mdrs.yml) |
+
+The public configs resolve DPE adapters from Hugging Face automatically. The `hf://` weights used below are downloaded once and then reused from the local Hub cache.
+
+```bash
+hf download zzaiyan/CoRE-UIR --local-dir pretrained
+```
 
 ## ⚡ Quick Start
 
@@ -72,11 +78,11 @@ The DPE encoder uses `openai/clip-vit-base-patch32` from Hugging Face and is dow
 ```bash
 # MDVD-108K
 python test.py -opt configs/core_uir_mdvd.yml \
-  --weights pretrained/core_uir_mdvd.pth --gpu 0 --no-resume
+  --weights hf://zzaiyan/CoRE-UIR/core_uir_mdvd.pth --gpu 0 --no-resume
 
 # MDRS-Landsat
 python test.py -opt configs/core_uir_mdrs.yml \
-  --weights pretrained/core_uir_mdrs.pth --gpu 0 --no-resume
+  --weights hf://zzaiyan/CoRE-UIR/core_uir_mdrs.pth --gpu 0 --no-resume
 ```
 
 ### 🧠 Training
@@ -106,13 +112,19 @@ CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 --master_port=29500 \
 
 [MDVD-108K](https://huggingface.co/datasets/zzaiyan/MDVD-108K) contains paired UAV images covering six single and six compound degradations, together with real-world degraded images and object-detection annotations.
 
+The official release uses Parquet shards for efficient distribution and online preview. Download the required splits and restore the image-directory layout used by CoRE-UIR:
+
 ```bash
 hf download zzaiyan/MDVD-108K \
   --repo-type dataset \
+  --include "data/train/**" "data/test/**" "tools/unpack_mdvd_parquet.py" \
   --local-dir datasets/MDVD-108K-release
+
+python datasets/MDVD-108K-release/tools/unpack_mdvd_parquet.py \
+  datasets/MDVD-108K-release datasets/MDVD-108K
 ```
 
-Set `/path/to/MDVD-108K` in the MDVD configuration files to the extracted dataset root.
+Set `/path/to/MDVD-108K` in the MDVD configuration files to `datasets/MDVD-108K`.
 
 ### 🛰️ MDRS-Landsat
 

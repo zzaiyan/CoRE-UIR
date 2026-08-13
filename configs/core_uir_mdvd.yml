@@ -166,7 +166,7 @@ network_prior:
   vision_tower: openai/clip-vit-base-patch32
   view_mode: dual
   view_size: 224
-  ckpt: pretrained/dpe_clip_b32_multilabel_mdvd.ckpt
+  ckpt: hf://zzaiyan/CoRE-UIR/dpe_clip_b32_mdvd.ckpt
 
 path:
   pretrain_network_g: ~

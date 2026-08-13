@@ -12,7 +12,7 @@ from copy import deepcopy
 from basicsr.models.archs import define_network
 from basicsr.models.base_model import BaseModel
 
-from prior.model import build_prior_router, normalize_prior_router_state_dict
+from prior.model import build_prior_router, load_prior_router_state_dict
 
 
 loss_module = importlib.import_module('basicsr.models.losses')
@@ -43,9 +43,8 @@ class IRPriorModel(BaseModel):
                 ckpt = ckpt['state_dict']
             elif 'params' in ckpt:
                 ckpt = ckpt['params']
-            ckpt = normalize_prior_router_state_dict(ckpt)
-            self.net_prior.load_state_dict(ckpt, strict=True)
-            print(f"Load DPE state_dict from {ckpt_path}")
+            checkpoint_format = load_prior_router_state_dict(self.net_prior, ckpt)
+            print(f"Load {checkpoint_format} DPE state_dict from {ckpt_path}")
 
         self.net_prior = self.model_to_device(self.net_prior)
 
@@ -136,8 +135,6 @@ class IRPriorModel(BaseModel):
 
         l_total, loss_dict = loss_module.compute_losses(
             self.loss_modules, self.loss_names, self.output, self.gt)
-
-        l_total = l_total + 0. * sum(p.sum() for p in self.net_g.parameters())
 
         l_total.backward()
         use_grad_clip = self.opt['train'].get('use_grad_clip', True)

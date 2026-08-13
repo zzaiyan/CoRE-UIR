@@ -11,6 +11,7 @@ from .logger import (MessageLogger, get_env_info, get_root_logger,
 from .misc import (check_resume, get_time_str, make_exp_dirs, mkdir_and_rename,
                    scandir, scandir_SIDD, set_random_seed, sizeof_fmt)
 from .create_lmdb import (create_lmdb_for_reds, create_lmdb_for_gopro, create_lmdb_for_rain13k)
+from .download_util import resolve_checkpoint_path
 
 __all__ = [
     # file_client.py
@@ -40,4 +41,5 @@ __all__ = [
     'create_lmdb_for_reds',
     'create_lmdb_for_gopro',
     'create_lmdb_for_rain13k',
+    'resolve_checkpoint_path',
 ]

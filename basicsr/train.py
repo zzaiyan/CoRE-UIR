@@ -53,7 +53,7 @@ def parse_options(is_train=True):
         '--weights',
         type=str,
         required=False,
-        help='Override path.pretrain_network_g with a checkpoint path.')
+        help='Override path.pretrain_network_g with a local path or hf:// URI.')
     parser.add_argument(
         '--no-resume',
         action='store_true',
