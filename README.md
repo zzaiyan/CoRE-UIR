@@ -19,11 +19,18 @@
 [![Dataset](https://img.shields.io/badge/Dataset-MDVD--108K-green.svg)](https://huggingface.co/datasets/zzaiyan/MDVD-108K)
 [![License](https://img.shields.io/badge/License-Apache_2.0-lightgrey.svg)](LICENSE)
 
-[Overview](#-overview) | [Results](#-results) | [Model Zoo](#-model-zoo) | [Quick Start](#-quick-start) | [Datasets](#-datasets) | [Citation](#-citation)
+[Updates](#-updates) | [Overview](#-overview) | [Results](#-results) | [Model Zoo](#-model-zoo) | [Quick Start](#-quick-start) | [Datasets](#-datasets) | [Citation](#-citation)
 
 </div>
 
 > **One model for diverse remote sensing image degradations.** CoRE-UIR combines degradation-aware guidance with common and residual experts to restore weather, illumination, imaging, and compound degradations efficiently.
+
+## 🔥 Updates
+
+- **2026-08:** Released pretrained DPE and CoRE-UIR weights with direct Hugging Face loading support.
+- **2026-08:** Released [MDVD-108K](https://huggingface.co/datasets/zzaiyan/MDVD-108K) with viewer-ready Parquet shards.
+- **2026-07:** CoRE-UIR was accepted by *ISPRS Journal of Photogrammetry and Remote Sensing*.
+- **2026-06:** Released the complete training and evaluation code.
 
 ## 🌍 Overview
 
@@ -128,7 +135,7 @@ Set `/path/to/MDVD-108K` in the MDVD configuration files to `datasets/MDVD-108K`
 
 ### 🛰️ MDRS-Landsat
 
-MDRS-Landsat covers four satellite restoration tasks: deblurring, denoising, dehazing, and dedarkening. Set `/path/to/Landsat` in [`dpe_clip_b32_mdrs.yml`](configs/dpe_clip_b32_mdrs.yml) and [`core_uir_mdrs.yml`](configs/core_uir_mdrs.yml).
+[MDRS-Landsat](https://github.com/colacomo/Ada4DIR) covers four satellite restoration tasks: deblurring, denoising, dehazing, and dedarkening. Download the dataset from the original repository, then set `/path/to/Landsat` to the local dataset root in [`dpe_clip_b32_mdrs.yml`](configs/dpe_clip_b32_mdrs.yml) and [`core_uir_mdrs.yml`](configs/core_uir_mdrs.yml).
 
 ```text
 Landsat/
