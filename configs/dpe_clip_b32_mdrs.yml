@@ -1,0 +1,62 @@
+# ------------------------------------------------------------------------
+# CoRE-UIR Phase-I DPE training on MDRS (Landsat).
+#
+# Replace /path/to/Landsat with your dataset root before running.
+# ------------------------------------------------------------------------
+config_name: router_mdrs_clip-b-32
+dataset_name: MDRS
+router_type: dpe
+view_mode: dual
+view_size: 224
+clip_vision_tower: openai/clip-vit-base-patch32
+multi_label_classification: false
+multi_label_threshold: 0.5
+epochs: 30
+batch_size: 16
+patch_size: 224
+crop_size: 512
+lr: !!float 2e-4
+eta_min: !!float 1e-5
+weight_decay: !!float 1e-3
+adam_beta1: 0.9
+adam_beta2: 0.9
+num_workers: 8
+cache_memory: 0
+save_every: 5
+ckpt_dir: prior/checkpoints
+
+datasets:
+  train:
+    name: MDRS-train
+    type: AllInOneRSDataset
+    degrade_type:
+      - blur
+      - noise
+      - haze
+      - dark
+    dataroot_gt: /path/to/Landsat/train/cleanpng
+    dataroot_lq:
+      - /path/to/Landsat/train/blur
+      - /path/to/Landsat/train/noise
+      - /path/to/Landsat/train/haze
+      - /path/to/Landsat/train/dark
+    select_ratio: 1.0
+    repeat: 1
+    clip_transform_mode: train
+
+  val:
+    name: MDRS-test
+    type: AllInOneRSDataset
+    degrade_type:
+      - blur
+      - noise
+      - haze
+      - dark
+    dataroot_gt: /path/to/Landsat/test/cleanpng
+    dataroot_lq:
+      - /path/to/Landsat/test/blur
+      - /path/to/Landsat/test/noise
+      - /path/to/Landsat/test/haze
+      - /path/to/Landsat/test/dark
+    select_ratio: 1.0
+    clip_transform_mode: inference
