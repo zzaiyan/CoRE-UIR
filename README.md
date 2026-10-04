@@ -27,6 +27,7 @@
 
 ## 🔥 Updates
 
+- **2026-10:** Fixed a weight mismatch that affected MDVD-108K reproduction accuracy.
 - **2026-08:** Released pretrained DPE and CoRE-UIR weights with direct Hugging Face loading support.
 - **2026-08:** Released [MDVD-108K](https://huggingface.co/datasets/zzaiyan/MDVD-108K) with viewer-ready Parquet shards.
 - **2026-07:** CoRE-UIR was accepted by *ISPRS Journal of Photogrammetry and Remote Sensing*.
